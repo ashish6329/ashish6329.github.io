@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -7,7 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
 <style>
-  :root {
+  /* ── THEME VARS ── */
+  :root[data-theme="light"] {
     --bg: #f5f0e8;
     --surface: #ede8de;
     --surface2: #e2dcd0;
@@ -20,9 +21,28 @@
     --accent2: #2b5fc4;
     --accent3: #2a8a5c;
     --gold: #c49a2b;
-    --serif: 'Crimson Pro', Georgia, serif;
-    --mono: 'Space Mono', monospace;
-    --sans: 'Syne', sans-serif;
+    --glow: rgba(196,75,43,0.15);
+    --card-bg: rgba(245,240,232,0.85);
+    --noise-op: 0.6;
+    --theme-icon: "☀";
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d0c0a;
+    --surface: #141210;
+    --surface2: #1a1815;
+    --border: #2a2620;
+    --border2: #3a352c;
+    --ink: #f0ebe0;
+    --ink2: #c8c0b0;
+    --muted: #7a7060;
+    --accent: #ff6b3d;
+    --accent2: #5b8fff;
+    --accent3: #3adb8a;
+    --gold: #f0b93a;
+    --glow: rgba(255,107,61,0.2);
+    --card-bg: rgba(20,18,16,0.92);
+    --noise-op: 0.25;
+    --theme-icon: "☽";
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -31,56 +51,69 @@
   body {
     background: var(--bg);
     color: var(--ink);
-    font-family: var(--serif);
+    font-family: 'Crimson Pro', Georgia, serif;
     font-size: 17px;
     line-height: 1.75;
     overflow-x: hidden;
+    transition: background 0.4s ease, color 0.4s ease;
   }
 
-  /* Paper texture overlay */
+  /* Paper / grain overlay */
   body::before {
     content: '';
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 999;
-    opacity: 0.6;
-    mix-blend-mode: multiply;
+    pointer-events: none; z-index: 999; opacity: var(--noise-op); mix-blend-mode: multiply;
   }
-
-  /* Ruled lines subtle bg */
   body::after {
     content: '';
-    position: fixed;
-    inset: 0;
-    background-image: repeating-linear-gradient(
-      transparent,
-      transparent 27px,
-      rgba(180,170,155,0.18) 27px,
-      rgba(180,170,155,0.18) 28px
-    );
-    pointer-events: none;
-    z-index: 0;
+    position: fixed; inset: 0;
+    background-image: repeating-linear-gradient(transparent, transparent 27px, rgba(180,170,155,0.12) 27px, rgba(180,170,155,0.12) 28px);
+    pointer-events: none; z-index: 0;
   }
 
+  /* ── THEME TOGGLE ── */
+  #themeToggle {
+    position: fixed; bottom: 2.2rem; left: 2rem; z-index: 500;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--border2);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 1.15rem; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    color: var(--ink);
+  }
+  #themeToggle:hover { transform: scale(1.15) rotate(20deg); box-shadow: 0 6px 24px var(--glow); border-color: var(--accent); }
+
   /* ── SCROLL PROGRESS ── */
-  .scroll-progress { position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--gold));z-index:300;width:0%;transition:width 0.1s; }
+  .scroll-progress { position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--gold),var(--accent3));z-index:300;width:0%;transition:width 0.1s; }
 
   /* ── NAV ── */
   nav {
     position:fixed; top:0;left:0;right:0; z-index:200;
     display:flex; align-items:center; justify-content:space-between;
     padding:1rem 4rem;
-    background:rgba(245,240,232,0.92); backdrop-filter:blur(12px);
+    background: var(--card-bg); backdrop-filter:blur(16px);
     border-bottom:1px solid var(--border);
-    transition:padding 0.3s;
+    transition: padding 0.3s, background 0.4s;
   }
   nav.scrolled { padding:0.65rem 4rem; }
-  .nav-logo { font-family:var(--sans);font-size:1.15rem;font-weight:800;color:var(--ink);letter-spacing:-0.02em;text-decoration:none; }
+  .nav-logo {
+    font-family:'Syne',sans-serif; font-size:1.15rem; font-weight:800;
+    color:var(--ink); letter-spacing:-0.02em; text-decoration:none;
+    display:flex; align-items:center; gap:0.5rem;
+  }
+  .nav-logo-icon {
+    width:32px; height:32px; border-radius:50%;
+    background: linear-gradient(135deg, var(--accent), var(--gold));
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.75rem; color:#fff; font-weight:800;
+    box-shadow: 0 0 12px var(--glow);
+    animation: logoPulse 3s ease-in-out infinite;
+  }
+  @keyframes logoPulse { 0%,100%{box-shadow:0 0 12px var(--glow)} 50%{box-shadow:0 0 24px var(--glow),0 0 40px var(--glow)} }
   .nav-logo span { color:var(--accent); }
   .nav-links { display:flex;gap:2.5rem;list-style:none; }
-  .nav-links a { font-family:var(--mono);font-size:0.68rem;color:var(--muted);text-decoration:none;letter-spacing:0.1em;text-transform:uppercase;transition:color 0.2s;position:relative; }
+  .nav-links a { font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--muted);text-decoration:none;letter-spacing:0.1em;text-transform:uppercase;transition:color 0.2s;position:relative; }
   .nav-links a::after { content:'';position:absolute;bottom:-3px;left:0;right:0;height:1px;background:var(--accent);transform:scaleX(0);transition:transform 0.2s;transform-origin:left; }
   .nav-links a:hover { color:var(--accent); }
   .nav-links a:hover::after,.nav-links a.active::after { transform:scaleX(1); }
@@ -93,80 +126,117 @@
     position:relative; overflow:hidden; gap:4rem;
   }
 
-  /* Big decorative initial letter */
+  /* Animated mesh background for hero */
+  .hero-mesh {
+    position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+  }
+  .hero-mesh svg { width:100%; height:100%; opacity:0.07; }
+  [data-theme="dark"] .hero-mesh svg { opacity:0.12; }
+
   .hero-drop-cap {
     position:absolute;right:0;top:50%;transform:translateY(-55%);
-    font-family:var(--sans);font-size:clamp(18rem,28vw,28rem);font-weight:800;
-    color:transparent;-webkit-text-stroke:1px rgba(180,170,155,0.25);
+    font-family:'Syne',sans-serif;font-size:clamp(18rem,28vw,28rem);font-weight:800;
+    color:transparent;-webkit-text-stroke:1px rgba(180,170,155,0.2);
     line-height:1;user-select:none;pointer-events:none;z-index:0;
     letter-spacing:-0.05em;
   }
 
   .hero-left { position:relative;z-index:2; }
-
-  .hero-tag {
-    display:inline-flex;align-items:center;gap:0.6rem;
-    font-family:var(--mono);font-size:0.68rem;color:var(--accent);
-    letter-spacing:0.14em;text-transform:uppercase;
-    margin-bottom:1.5rem; animation:fadeUp 0.9s ease both;
-  }
+  .hero-tag { display:inline-flex;align-items:center;gap:0.6rem;font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--accent);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:1.5rem;animation:fadeUp 0.9s ease both; }
   .hero-tag-dot { width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;animation:pulse 2s ease infinite; }
   @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.7)} }
 
-  .hero-name {
-    font-family:var(--sans);font-size:clamp(3.5rem,6vw,6rem);
-    font-weight:800;line-height:0.95;letter-spacing:-0.04em;
-    margin-bottom:1.2rem;animation:fadeUp 0.9s 0.1s ease both;
-  }
+  .hero-name { font-family:'Syne',sans-serif;font-size:clamp(3.5rem,6vw,6rem);font-weight:800;line-height:0.95;letter-spacing:-0.04em;margin-bottom:1.2rem;animation:fadeUp 0.9s 0.1s ease both; }
   .hero-name .line1 { display:block; }
   .hero-name .line2 { display:block;color:var(--accent);position:relative; }
-  .hero-name .line2::after {
-    content:'';position:absolute;bottom:-4px;left:0;
-    width:100%;height:3px;background:var(--accent);
-    transform:scaleX(0);animation:lineReveal 0.8s 0.9s ease forwards;
-  }
+  .hero-name .line2::after { content:'';position:absolute;bottom:-4px;left:0;width:100%;height:3px;background:var(--accent);transform:scaleX(0);animation:lineReveal 0.8s 0.9s ease forwards; }
   @keyframes lineReveal { to{transform:scaleX(1)} }
 
-  .hero-subtitle { font-family:var(--serif);font-style:italic;font-size:1.25rem;color:var(--muted);margin:1.8rem 0 2.5rem;animation:fadeUp 0.9s 0.2s ease both;line-height:1.5; }
+  .hero-subtitle { font-family:'Crimson Pro',serif;font-style:italic;font-size:1.25rem;color:var(--muted);margin:1.8rem 0 2.5rem;animation:fadeUp 0.9s 0.2s ease both;line-height:1.5; }
   .hero-cta { display:flex;gap:1rem;flex-wrap:wrap;animation:fadeUp 0.9s 0.3s ease both; }
-
   @keyframes fadeUp { from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)} }
 
+  /* ── AI AVATAR ── */
+  .hero-avatar-wrapper {
+    position:relative; z-index:2; display:flex; flex-direction:column; gap:1rem;
+    animation:fadeUp 0.9s 0.4s ease both;
+  }
+  .avatar-container {
+    position:relative; width:280px; margin:0 auto;
+  }
+  .avatar-ring {
+    position:absolute; inset:-12px; border-radius:50%;
+    border:2px solid transparent;
+    background: linear-gradient(var(--bg), var(--bg)) padding-box,
+                linear-gradient(135deg, var(--accent), var(--gold), var(--accent3)) border-box;
+    animation: ringRotate 8s linear infinite;
+  }
+  .avatar-ring-outer {
+    position:absolute; inset:-24px; border-radius:50%;
+    border:1px dashed var(--border2);
+    animation: ringRotate 20s linear infinite reverse;
+  }
+  @keyframes ringRotate { to { transform: rotate(360deg); } }
+
+  /* Orbiting dots */
+  .orbit-dot {
+    position:absolute; width:8px; height:8px; border-radius:50%;
+    background: var(--accent); top:calc(50% - 4px); left:-28px;
+    transform-origin: calc(50% + 28px) 50%;
+    animation: orbitDot 4s linear infinite;
+    box-shadow: 0 0 8px var(--accent);
+  }
+  .orbit-dot:nth-child(2) { background:var(--gold); animation-delay:-1.33s; box-shadow:0 0 8px var(--gold); }
+  .orbit-dot:nth-child(3) { background:var(--accent3); animation-delay:-2.66s; box-shadow:0 0 8px var(--accent3); }
+  @keyframes orbitDot { to { transform: rotate(360deg); } }
+
+  .avatar-svg-wrap {
+    border-radius:50%; overflow:hidden; width:280px; height:280px;
+    position:relative; z-index:2;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2), 0 0 0 1px var(--border);
+    transition: box-shadow 0.3s;
+  }
+  .avatar-svg-wrap:hover { box-shadow: 0 20px 80px var(--glow), 0 0 0 1px var(--accent); }
+
+  /* Status badge */
+  .avatar-badge {
+    position:absolute; bottom:16px; right:16px; z-index:3;
+    background: var(--surface); border:1px solid var(--border);
+    font-family:'Space Mono',monospace; font-size:0.58rem; color:var(--accent3);
+    padding:0.25rem 0.7rem; letter-spacing:0.08em; text-transform:uppercase;
+    display:flex; align-items:center; gap:0.4rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    animation: badgePop 0.6s 1.2s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes badgePop { from{opacity:0;transform:scale(0.7)} to{opacity:1;transform:scale(1)} }
+  .badge-dot { width:5px;height:5px;border-radius:50%;background:var(--accent3);animation:pulse 1.5s ease infinite; }
+
   /* ── BUTTONS ── */
-  .btn-primary {
-    font-family:var(--mono);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;
-    color:var(--bg);background:var(--ink);border:2px solid var(--ink);padding:0.8rem 2rem;
-    cursor:pointer;text-decoration:none;transition:all 0.25s;display:inline-block;
-  }
+  .btn-primary { font-family:'Space Mono',monospace;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--bg);background:var(--ink);border:2px solid var(--ink);padding:0.8rem 2rem;cursor:pointer;text-decoration:none;transition:all 0.25s;display:inline-block; }
   .btn-primary:hover { background:var(--accent);border-color:var(--accent);transform:translateY(-2px);box-shadow:4px 4px 0 var(--border2); }
-  .btn-outline {
-    font-family:var(--mono);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;
-    color:var(--ink);background:transparent;border:2px solid var(--ink);padding:0.8rem 2rem;
-    cursor:pointer;text-decoration:none;transition:all 0.25s;display:inline-block;
-  }
+  .btn-outline { font-family:'Space Mono',monospace;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink);background:transparent;border:2px solid var(--ink);padding:0.8rem 2rem;cursor:pointer;text-decoration:none;transition:all 0.25s;display:inline-block; }
   .btn-outline:hover { background:var(--ink);color:var(--bg);transform:translateY(-2px);box-shadow:4px 4px 0 var(--border2); }
 
-  /* ── HERO RIGHT STAT CARDS ── */
-  .hero-right { position:relative;z-index:2;display:flex;flex-direction:column;gap:1rem; }
-  .stat-card {
-    background:var(--surface);border:1px solid var(--border);padding:1.4rem 1.8rem;
-    position:relative;overflow:hidden;transition:transform 0.3s,box-shadow 0.3s;
-    border-left:4px solid transparent;
-  }
+  /* ── STAT CARDS ── */
+  .stat-cards { display:flex;flex-direction:column;gap:1rem; }
+  .stat-card { background:var(--surface);border:1px solid var(--border);padding:1.4rem 1.8rem;position:relative;overflow:hidden;transition:transform 0.3s,box-shadow 0.3s;border-left:4px solid transparent; }
   .stat-card:hover { transform:translate(-4px,-4px);box-shadow:6px 6px 0 var(--border2); }
   .stat-card:nth-child(1) { border-left-color:var(--accent); }
   .stat-card:nth-child(2) { border-left-color:var(--accent2); }
   .stat-card:nth-child(3) { border-left-color:var(--accent3); }
-  .stat-number { font-family:var(--sans);font-size:2.6rem;font-weight:800;line-height:1;color:var(--ink); }
+  .stat-number { font-family:'Syne',sans-serif;font-size:2.6rem;font-weight:800;line-height:1;color:var(--ink); }
   .stat-card:nth-child(2) .stat-number { color:var(--accent2); }
   .stat-card:nth-child(3) .stat-number { color:var(--accent3); }
-  .stat-label { font-family:var(--mono);font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.3rem; }
+  .stat-label { font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.3rem; }
+
+  /* Dark mode stat card glow */
+  [data-theme="dark"] .stat-card:nth-child(1):hover { box-shadow:6px 6px 0 var(--border2), 0 0 30px rgba(255,107,61,0.15); }
 
   /* ── SECTIONS ── */
   section { padding:6rem 4rem;position:relative;z-index:1; }
   .section-header { display:flex;align-items:center;gap:1.5rem;margin-bottom:3.5rem; }
-  .section-number { font-family:var(--mono);font-size:0.65rem;color:var(--accent);letter-spacing:0.12em;flex-shrink:0; }
-  .section-title { font-family:var(--sans);font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:800;letter-spacing:-0.03em;line-height:1; }
+  .section-number { font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:0.12em;flex-shrink:0; }
+  .section-title { font-family:'Syne',sans-serif;font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:800;letter-spacing:-0.03em;line-height:1; }
   .section-line { flex:1;height:1px;background:var(--border2);margin-left:0.5rem; }
 
   /* ── ABOUT ── */
@@ -174,12 +244,13 @@
   .about-grid { display:grid;grid-template-columns:3fr 2fr;gap:4rem;align-items:start; }
   .about-text { font-size:1.1rem;color:var(--ink2);line-height:1.85; }
   .about-text p+p { margin-top:1.1rem; }
-  .about-text strong { color:var(--ink);font-family:var(--sans);font-size:0.95em; }
+  .about-text strong { color:var(--ink);font-family:'Syne',sans-serif;font-size:0.95em; }
   .about-text em { color:var(--accent);font-style:italic; }
   .about-highlights { display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1.8rem; }
-  .highlight-chip { font-family:var(--mono);font-size:0.65rem;color:var(--accent3);border:1px solid var(--accent3);padding:0.2rem 0.6rem;letter-spacing:0.06em;text-transform:uppercase;background:rgba(42,138,92,0.05); }
+  .highlight-chip { font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--accent3);border:1px solid var(--accent3);padding:0.2rem 0.6rem;letter-spacing:0.06em;text-transform:uppercase;background:rgba(42,138,92,0.05);transition:all 0.2s; }
+  .highlight-chip:hover { background:var(--accent3);color:#fff;transform:translateY(-2px); }
   .contact-block { display:flex;flex-direction:column;gap:0.8rem; }
-  .contact-item { display:flex;align-items:center;gap:1rem;padding:0.9rem 1.1rem;background:var(--bg);border:1px solid var(--border);text-decoration:none;color:var(--ink2);transition:all 0.22s;font-family:var(--mono);font-size:0.75rem;border-left:3px solid transparent; }
+  .contact-item { display:flex;align-items:center;gap:1rem;padding:0.9rem 1.1rem;background:var(--bg);border:1px solid var(--border);text-decoration:none;color:var(--ink2);transition:all 0.22s;font-family:'Space Mono',monospace;font-size:0.75rem;border-left:3px solid transparent; }
   .contact-item:hover { border-left-color:var(--accent);color:var(--accent);transform:translateX(4px);box-shadow:3px 3px 0 var(--border); }
   .contact-icon { font-size:0.9rem;width:20px;text-align:center;flex-shrink:0;color:var(--muted); }
 
@@ -189,41 +260,39 @@
   .exp-item::before { content:'';position:absolute;left:200px;top:0;bottom:0;width:1px;background:var(--border); }
   .exp-item:last-child { border-bottom:none;margin-bottom:0;padding-bottom:0; }
   .exp-meta { padding-top:0.2rem; }
-  .exp-period { font-family:var(--mono);font-size:0.65rem;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.4rem; }
-  .exp-company { font-family:var(--mono);font-size:0.72rem;color:var(--muted);font-weight:400;letter-spacing:0.04em; }
-  .exp-role { font-family:var(--sans);font-size:1.4rem;font-weight:800;margin-bottom:0.3rem;line-height:1.15;letter-spacing:-0.02em; }
-  .exp-subtitle { font-family:var(--mono);font-size:0.68rem;color:var(--accent2);margin-bottom:1.2rem;letter-spacing:0.06em;text-transform:uppercase; }
+  .exp-period { font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.4rem; }
+  .exp-company { font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);font-weight:400;letter-spacing:0.04em; }
+  .exp-role { font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;margin-bottom:0.3rem;line-height:1.15;letter-spacing:-0.02em; }
+  .exp-subtitle { font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--accent2);margin-bottom:1.2rem;letter-spacing:0.06em;text-transform:uppercase; }
   .exp-bullets { list-style:none;display:flex;flex-direction:column;gap:0.85rem; }
   .exp-bullets li { padding-left:1.4rem;position:relative;color:var(--ink2);font-size:0.98rem;line-height:1.7; }
   .exp-bullets li::before { content:'—';position:absolute;left:0;color:var(--accent);font-size:0.8rem;top:0.2em;font-weight:700; }
-  .exp-impact { display:inline-block;font-family:var(--mono);font-size:0.65rem;color:var(--accent);border:1px solid rgba(196,75,43,0.3);padding:0.1rem 0.45rem;margin-left:0.4rem;background:rgba(196,75,43,0.06); }
+  .exp-impact { display:inline-block;font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--accent);border:1px solid rgba(196,75,43,0.3);padding:0.1rem 0.45rem;margin-left:0.4rem;background:rgba(196,75,43,0.06); }
 
   /* ── SKILLS ── */
   #skills { background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border); }
   .skills-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem; }
   .skill-category { background:var(--bg);border:1px solid var(--border);padding:1.6rem;transition:all 0.25s;position:relative; }
   .skill-category:hover { transform:translate(-3px,-3px);box-shadow:5px 5px 0 var(--border2); }
-  .skill-cat-title { font-family:var(--mono);font-size:0.65rem;color:var(--ink);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:1rem;padding-bottom:0.7rem;border-bottom:1px solid var(--border); }
+  .skill-cat-title { font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--ink);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:1rem;padding-bottom:0.7rem;border-bottom:1px solid var(--border); }
   .skill-cat-title.genai-title { color:var(--accent); }
   .skill-cat-title.dsa-title { color:var(--accent2); }
   .skill-tags { display:flex;flex-wrap:wrap;gap:0.45rem; }
-  .skill-tag { font-family:var(--mono);font-size:0.65rem;color:var(--muted);background:var(--surface);border:1px solid var(--border);padding:0.2rem 0.55rem;transition:all 0.2s; }
-  .skill-category:hover .skill-tag { color:var(--ink2);border-color:var(--border2); }
+  .skill-tag { font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);background:var(--surface);border:1px solid var(--border);padding:0.2rem 0.55rem;transition:all 0.2s; }
+  .skill-tag:hover { color:var(--accent);border-color:var(--accent);background:rgba(196,75,43,0.05); }
 
   /* ── ARCHITECTURE ── */
   #architecture { background:var(--bg); }
   .arch-intro { max-width:720px;color:var(--ink2);font-size:1.1rem;line-height:1.85;margin-bottom:3rem;font-style:italic; }
-  .arch-intro strong { font-style:normal;font-family:var(--sans);color:var(--ink);font-size:0.95em; }
-
+  .arch-intro strong { font-style:normal;font-family:'Syne',sans-serif;color:var(--ink);font-size:0.95em; }
   .pipeline-strip { background:var(--surface);border:1px solid var(--border);padding:1.8rem;margin-bottom:1.5rem;overflow:hidden; }
-  .pipeline-strip-title { font-family:var(--mono);font-size:0.65rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:1.4rem;padding-bottom:0.7rem;border-bottom:1px solid var(--border); }
+  .pipeline-strip-title { font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:1.4rem;padding-bottom:0.7rem;border-bottom:1px solid var(--border); }
   .pipeline-flow { display:flex;align-items:center;gap:0;overflow-x:auto;padding-bottom:0.4rem; }
   .pipeline-step { background:var(--bg);border:1px solid var(--border);padding:0.65rem 1rem;text-align:center;min-width:105px;flex-shrink:0;transition:all 0.22s; }
   .pipeline-step:hover { border-color:var(--accent);transform:translateY(-2px);box-shadow:2px 4px 0 var(--border2); }
   .pipeline-step-icon { font-size:1.1rem;display:block;margin-bottom:0.3rem; }
-  .pipeline-step-name { font-family:var(--mono);font-size:0.57rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;display:block; }
-  .pipeline-arrow { font-family:var(--mono);color:var(--border2);font-size:0.9rem;padding:0 0.4rem;flex-shrink:0; }
-
+  .pipeline-step-name { font-family:'Space Mono',monospace;font-size:0.57rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;display:block; }
+  .pipeline-arrow { font-family:'Space Mono',monospace;color:var(--border2);font-size:0.9rem;padding:0 0.4rem;flex-shrink:0; }
   .arch-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:1.2rem; }
   .arch-card { background:var(--surface);border:1px solid var(--border);padding:2rem;position:relative;overflow:hidden;transition:all 0.3s;border-top:3px solid transparent; }
   .arch-card:nth-child(1) { border-top-color:var(--accent); }
@@ -232,38 +301,34 @@
   .arch-card:nth-child(4) { border-top-color:var(--gold); }
   .arch-card:hover { transform:translate(-3px,-3px);box-shadow:5px 5px 0 var(--border2); }
   .arch-icon { font-size:1.6rem;margin-bottom:0.8rem;display:block; }
-  .arch-card-label { font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.5rem; }
-  .arch-card-title { font-family:var(--sans);font-size:1.1rem;font-weight:700;margin-bottom:0.8rem;line-height:1.2;letter-spacing:-0.01em; }
+  .arch-card-label { font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.5rem; }
+  .arch-card-title { font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:0.8rem;line-height:1.2;letter-spacing:-0.01em; }
   .arch-card-desc { font-size:0.9rem;color:var(--muted);line-height:1.7;margin-bottom:1rem; }
   .arch-stack { display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.8rem; }
-  .arch-stack-tag { font-family:var(--mono);font-size:0.6rem;color:var(--ink2);border:1px solid var(--border2);padding:0.12rem 0.45rem;background:var(--bg); }
+  .arch-stack-tag { font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--ink2);border:1px solid var(--border2);padding:0.12rem 0.45rem;background:var(--bg); }
 
-  /* ── WRITING / SUBSTACK ── */
+  /* ── WRITING ── */
   #writing { background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border); }
   .writing-intro { max-width:640px;color:var(--ink2);font-size:1.05rem;line-height:1.8;margin-bottom:2.5rem;font-style:italic; }
   .writing-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:1.2rem; }
-  .writing-card {
-    background:var(--bg);border:1px solid var(--border);padding:2rem;
-    text-decoration:none;display:block;transition:all 0.25s;position:relative;overflow:hidden;
-    border-left:4px solid var(--accent);
-  }
+  .writing-card { background:var(--bg);border:1px solid var(--border);padding:2rem;text-decoration:none;display:block;transition:all 0.25s;position:relative;overflow:hidden;border-left:4px solid var(--accent); }
   .writing-card:hover { transform:translate(-3px,-3px);box-shadow:6px 6px 0 var(--border2);border-left-color:var(--gold); }
   .writing-card-meta { display:flex;align-items:center;gap:0.8rem;margin-bottom:1rem; }
-  .writing-platform { font-family:var(--mono);font-size:0.62rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.12em;background:rgba(196,75,43,0.08);border:1px solid rgba(196,75,43,0.2);padding:0.15rem 0.5rem; }
-  .writing-type { font-family:var(--mono);font-size:0.6rem;color:var(--muted);letter-spacing:0.08em; }
-  .writing-title { font-family:var(--sans);font-size:1.2rem;font-weight:700;color:var(--ink);line-height:1.25;margin-bottom:0.7rem;letter-spacing:-0.02em; }
+  .writing-platform { font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.12em;background:rgba(196,75,43,0.08);border:1px solid rgba(196,75,43,0.2);padding:0.15rem 0.5rem; }
+  .writing-type { font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.08em; }
+  .writing-title { font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:var(--ink);line-height:1.25;margin-bottom:0.7rem;letter-spacing:-0.02em; }
   .writing-excerpt { font-size:0.9rem;color:var(--muted);line-height:1.65;margin-bottom:1.2rem; }
-  .writing-link { font-family:var(--mono);font-size:0.65rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;display:inline-flex;align-items:center;gap:0.4rem;transition:gap 0.2s; }
+  .writing-link { font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;display:inline-flex;align-items:center;gap:0.4rem;transition:gap 0.2s; }
   .writing-card:hover .writing-link { gap:0.7rem; }
-  .writing-card-icon { font-size:1.8rem;position:absolute;right:1.5rem;top:1.5rem;opacity:0.12;font-style:normal; }
+  .writing-card-icon { font-size:1.8rem;position:absolute;right:1.5rem;top:1.5rem;opacity:0.1; }
 
   /* ── PROJECTS ── */
   #projects { background:var(--bg); }
   .projects-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:1.2rem; }
   .project-card { background:var(--surface);border:1px solid var(--border);padding:2rem;transition:all 0.3s;position:relative;overflow:hidden;border-top:3px solid var(--accent2); }
   .project-card:hover { transform:translate(-3px,-3px);box-shadow:5px 5px 0 var(--border2); }
-  .project-label { font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.7rem; }
-  .project-title { font-family:var(--sans);font-size:1.15rem;font-weight:700;margin-bottom:0.7rem;line-height:1.2;letter-spacing:-0.01em;color:var(--ink); }
+  .project-label { font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.7rem; }
+  .project-title { font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700;margin-bottom:0.7rem;line-height:1.2;letter-spacing:-0.01em;color:var(--ink); }
   .project-desc { font-size:0.9rem;color:var(--muted);line-height:1.65; }
 
   /* ── EDUCATION ── */
@@ -272,9 +337,8 @@
   .edu-card { background:var(--bg);border:1px solid var(--border);padding:2rem;position:relative;overflow:hidden;transition:all 0.25s; }
   .edu-card:hover { transform:translate(-3px,-3px);box-shadow:5px 5px 0 var(--border2); }
   .edu-card::before { content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--accent),var(--gold)); }
-  .edu-degree { font-family:var(--sans);font-size:1.15rem;font-weight:700;margin-bottom:0.4rem;line-height:1.2;letter-spacing:-0.01em; }
-  .edu-school { font-family:var(--serif);font-style:italic;font-size:0.95rem;color:var(--muted);margin-bottom:0.7rem; }
-  .edu-year { font-family:var(--mono);font-size:0.65rem;color:var(--accent);letter-spacing:0.1em;display:block; }
+  .edu-degree { font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700;margin-bottom:0.4rem;line-height:1.2;letter-spacing:-0.01em; }
+  .edu-school { font-family:'Crimson Pro',serif;font-style:italic;font-size:0.95rem;color:var(--muted);margin-bottom:0.7rem; }
 
   /* ── ACHIEVEMENTS ── */
   #achievements { background:var(--bg); }
@@ -283,56 +347,48 @@
   .ach-item:hover { transform:translate(-3px,-3px);box-shadow:4px 4px 0 var(--border2); }
   .ach-icon { font-size:1.2rem;flex-shrink:0;margin-top:0.1rem; }
   .ach-text { font-size:0.9rem;color:var(--ink2);line-height:1.6; }
-  .ach-text strong { display:block;color:var(--ink);font-weight:600;margin-bottom:0.2rem;font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em; }
+  .ach-text strong { display:block;color:var(--ink);font-weight:600;margin-bottom:0.2rem;font-family:'Space Mono',monospace;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em; }
 
   /* ── CONTACT ── */
   #contact { background:var(--surface);border-top:1px solid var(--border); }
   .contact-section-grid { display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start; }
   .contact-intro { font-size:1.05rem;color:var(--ink2);line-height:1.85;margin-bottom:2rem;font-style:italic; }
   .contact-direct-links { display:flex;flex-direction:column;gap:0.7rem; }
-
-  /* ── CONTACT FORM ── */
   .contact-form-wrapper { background:var(--bg);border:1px solid var(--border);padding:2rem;position:relative;border-top:3px solid var(--accent); }
-  .form-title { font-family:var(--sans);font-size:1.4rem;font-weight:800;margin-bottom:0.3rem;letter-spacing:-0.02em; }
-  .form-subtitle { font-family:var(--mono);font-size:0.65rem;color:var(--muted);letter-spacing:0.08em;margin-bottom:1.8rem;text-transform:uppercase; }
+  .form-title { font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;margin-bottom:0.3rem;letter-spacing:-0.02em; }
+  .form-subtitle { font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);letter-spacing:0.08em;margin-bottom:1.8rem;text-transform:uppercase; }
   .form-group { margin-bottom:1.2rem; }
-  .form-label { display:block;font-family:var(--mono);font-size:0.62rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4rem; }
-  .form-input, .form-textarea { width:100%;background:var(--surface);border:1px solid var(--border);color:var(--ink);font-family:var(--mono);font-size:0.82rem;padding:0.75rem 1rem;outline:none;transition:border-color 0.22s;border-radius:0;-webkit-appearance:none; }
+  .form-label { display:block;font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4rem; }
+  .form-input, .form-textarea { width:100%;background:var(--surface);border:1px solid var(--border);color:var(--ink);font-family:'Space Mono',monospace;font-size:0.82rem;padding:0.75rem 1rem;outline:none;transition:border-color 0.22s;border-radius:0;-webkit-appearance:none; }
   .form-input:focus, .form-textarea:focus { border-color:var(--accent);box-shadow:2px 2px 0 var(--border2); }
   .form-input::placeholder, .form-textarea::placeholder { color:var(--border2); }
   .form-textarea { resize:vertical;min-height:130px; }
   .form-row { display:grid;grid-template-columns:1fr 1fr;gap:1rem; }
-  .form-input.invalid, .form-textarea.invalid { border-color:#c44b2b; }
-  .form-error { font-family:var(--mono);font-size:0.6rem;color:#c44b2b;margin-top:0.3rem;display:none;letter-spacing:0.04em; }
+  .form-input.invalid, .form-textarea.invalid { border-color:var(--accent); }
+  .form-error { font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--accent);margin-top:0.3rem;display:none;letter-spacing:0.04em; }
   .form-error.visible { display:block; }
-
-  .btn-submit {
-    font-family:var(--mono);font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;
-    color:var(--bg);background:var(--ink);border:2px solid var(--ink);padding:0.9rem 2rem;
-    cursor:pointer;transition:all 0.25s;
-    display:inline-flex;align-items:center;gap:0.6rem;margin-top:0.5rem;
-    width:100%;justify-content:center;
-  }
+  .btn-submit { font-family:'Space Mono',monospace;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--bg);background:var(--ink);border:2px solid var(--ink);padding:0.9rem 2rem;cursor:pointer;transition:all 0.25s;display:inline-flex;align-items:center;gap:0.6rem;margin-top:0.5rem;width:100%;justify-content:center; }
   .btn-submit:hover:not(:disabled) { background:var(--accent);border-color:var(--accent);transform:translate(-3px,-3px);box-shadow:5px 5px 0 var(--border2); }
   .btn-submit:disabled { opacity:0.6;cursor:not-allowed; }
   .btn-submit .submit-icon { transition:transform 0.25s; }
   .btn-submit:hover .submit-icon { transform:translateX(5px); }
 
   /* ── TOAST ── */
-  .toast {
-    position:fixed;bottom:2rem;right:2rem;
-    background:var(--ink);border:1px solid var(--border2);
-    padding:1rem 1.5rem;font-family:var(--mono);font-size:0.75rem;color:var(--bg);
-    z-index:1000;transform:translateY(100px);opacity:0;
-    transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);
-    display:flex;align-items:center;gap:0.8rem;max-width:380px;
-    border-left:4px solid var(--accent3);
-  }
+  .toast { position:fixed;bottom:2rem;right:2rem;background:var(--surface);border:1px solid var(--border2);padding:1rem 1.5rem;font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--ink);z-index:1000;transform:translateY(100px);opacity:0;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);display:flex;align-items:center;gap:0.8rem;max-width:380px;border-left:4px solid var(--accent3); }
   .toast.show { transform:translateY(0);opacity:1; }
   .toast.error { border-left-color:var(--accent); }
 
   /* ── FOOTER ── */
-  footer { padding:2rem 4rem;border-top:2px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:0.65rem;color:var(--muted);position:relative;z-index:1;background:var(--surface2); }
+  footer { padding:2rem 4rem;border-top:2px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);position:relative;z-index:1;background:var(--surface2);transition:background 0.4s; }
+
+  /* ── DARK MODE GLOW EFFECTS ── */
+  [data-theme="dark"] .stat-card:hover { box-shadow:6px 6px 0 var(--border2), 0 0 30px rgba(255,107,61,0.08); }
+  [data-theme="dark"] .arch-card:hover { box-shadow:5px 5px 0 var(--border2), 0 0 40px rgba(91,143,255,0.07); }
+  [data-theme="dark"] nav { border-bottom-color: rgba(58,52,44,0.8); }
+  [data-theme="dark"] .exp-impact { background:rgba(255,107,61,0.08); }
+
+  /* Subtle dark glow on hero name */
+  [data-theme="dark"] .hero-name .line2 { text-shadow: 0 0 40px rgba(255,107,61,0.3); }
 
   /* ── SCROLL REVEAL ── */
   .reveal { opacity:0;transform:translateY(20px);transition:opacity 0.6s ease,transform 0.6s ease; }
@@ -346,7 +402,10 @@
     .nav-links a { font-size:0.62rem; }
     #hero { grid-template-columns:1fr;padding:6rem 2rem 3rem;gap:2rem; }
     .hero-drop-cap { font-size:40vw;right:-5vw; }
-    .hero-right { flex-direction:row;flex-wrap:wrap; }
+    .hero-avatar-wrapper { flex-direction:row;flex-wrap:wrap; }
+    .avatar-container { width:200px; margin:0; }
+    .avatar-svg-wrap { width:200px;height:200px; }
+    .stat-cards { flex-direction:row;flex-wrap:wrap; }
     .stat-card { flex:1;min-width:140px; }
     section { padding:4rem 2rem; }
     .about-grid,.skills-grid,.arch-grid,.projects-grid,.edu-grid,.ach-list,.contact-section-grid,.writing-grid { grid-template-columns:1fr; }
@@ -354,6 +413,7 @@
     .exp-item { grid-template-columns:1fr;gap:0.5rem; }
     .exp-item::before { display:none; }
     footer { flex-direction:column;gap:0.5rem;text-align:center; }
+    #themeToggle { bottom:1rem;left:1rem; }
   }
   @media (max-width:600px) {
     .nav-links { display:none; }
@@ -373,9 +433,15 @@
   <span id="toastMsg">Message ready!</span>
 </div>
 
+<!-- THEME TOGGLE -->
+<button id="themeToggle" aria-label="Toggle theme" title="Toggle light/dark mode">☀</button>
+
 <!-- NAV -->
 <nav id="mainNav">
-  <a class="nav-logo" href="#hero">A<span>V</span></a>
+  <a class="nav-logo" href="#hero">
+    <div class="nav-logo-icon">AV</div>
+    A<span>V</span>
+  </a>
   <ul class="nav-links">
     <li><a href="#about">About</a></li>
     <li><a href="#experience">Experience</a></li>
@@ -390,6 +456,26 @@
 
 <!-- HERO -->
 <section id="hero">
+  <!-- Animated mesh background -->
+  <div class="hero-mesh" aria-hidden="true">
+    <svg viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="mg1" cx="20%" cy="30%"><stop offset="0%" stop-color="var(--accent)"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+        <radialGradient id="mg2" cx="80%" cy="70%"><stop offset="0%" stop-color="var(--accent2)"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+        <radialGradient id="mg3" cx="60%" cy="20%"><stop offset="0%" stop-color="var(--gold)"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+      </defs>
+      <circle cx="240" cy="210" r="320" fill="url(#mg1)" opacity="0.6">
+        <animate attributeName="r" values="320;360;320" dur="8s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="960" cy="490" r="280" fill="url(#mg2)" opacity="0.5">
+        <animate attributeName="r" values="280;320;280" dur="10s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="720" cy="140" r="200" fill="url(#mg3)" opacity="0.4">
+        <animate attributeName="r" values="200;240;200" dur="6s" repeatCount="indefinite"/>
+      </circle>
+    </svg>
+  </div>
+
   <div class="hero-drop-cap" aria-hidden="true">AV</div>
   <div class="hero-left">
     <div class="hero-tag"><span class="hero-tag-dot"></span>ML Engineer · GenAI · AI Systems</div>
@@ -403,18 +489,178 @@
       <a href="#contact" class="btn-outline">Get in Touch</a>
     </div>
   </div>
-  <div class="hero-right">
-    <div class="stat-card">
-      <div class="stat-number">3<span style="font-size:1.2rem;color:var(--muted)">+</span></div>
-      <div class="stat-label">Years Experience</div>
+
+  <!-- AI AVATAR + STATS -->
+  <div class="hero-avatar-wrapper">
+    <!-- AI-Generated Avatar SVG -->
+    <div class="avatar-container">
+      <div class="avatar-ring-outer"></div>
+      <div class="avatar-ring"></div>
+      <div class="orbit-dot"></div>
+      <div class="orbit-dot"></div>
+      <div class="orbit-dot"></div>
+      <div class="avatar-svg-wrap">
+        <svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg" width="280" height="280">
+          <defs>
+            <radialGradient id="bgGrad" cx="50%" cy="40%">
+              <stop offset="0%" stop-color="#1a2540"/>
+              <stop offset="100%" stop-color="#0a0d18"/>
+            </radialGradient>
+            <radialGradient id="skinGrad" cx="45%" cy="35%">
+              <stop offset="0%" stop-color="#c8956a"/>
+              <stop offset="100%" stop-color="#a0704a"/>
+            </radialGradient>
+            <radialGradient id="faceGrad" cx="45%" cy="35%">
+              <stop offset="0%" stop-color="#d4a070"/>
+              <stop offset="60%" stop-color="#b87848"/>
+              <stop offset="100%" stop-color="#a06030"/>
+            </radialGradient>
+            <radialGradient id="eyeGrad" cx="40%" cy="40%">
+              <stop offset="0%" stop-color="#4a90e2"/>
+              <stop offset="100%" stop-color="#1a4a8a"/>
+            </radialGradient>
+            <linearGradient id="shirtGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#1e3a6e"/>
+              <stop offset="100%" stop-color="#0d1f3c"/>
+            </linearGradient>
+            <linearGradient id="collarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#f0ebe0"/>
+              <stop offset="100%" stop-color="#d8d0c0"/>
+            </linearGradient>
+            <filter id="softShadow">
+              <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="rgba(0,0,0,0.4)" flood-opacity="0.4"/>
+            </filter>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+              <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <clipPath id="circleClip"><circle cx="140" cy="140" r="140"/></clipPath>
+          </defs>
+
+          <!-- BG -->
+          <circle cx="140" cy="140" r="140" fill="url(#bgGrad)"/>
+
+          <!-- Subtle circuit/code pattern in bg -->
+          <g clip-path="url(#circleClip)" opacity="0.12" stroke="#4a90e2" stroke-width="0.8" fill="none">
+            <line x1="0" y1="60" x2="80" y2="60"/><line x1="80" y1="60" x2="80" y2="40"/><line x1="80" y1="40" x2="130" y2="40"/>
+            <circle cx="130" cy="40" r="3" fill="#4a90e2"/>
+            <line x1="200" y1="50" x2="280" y2="50"/><line x1="200" y1="50" x2="200" y2="80"/>
+            <circle cx="200" cy="80" r="3" fill="#4a90e2"/>
+            <line x1="0" y1="230" x2="60" y2="230"/><line x1="60" y1="230" x2="60" y2="250"/><line x1="60" y1="250" x2="110" y2="250"/>
+            <line x1="180" y1="240" x2="280" y2="240"/>
+            <text x="10" y="100" font-family="monospace" font-size="7" fill="#4a90e2" opacity="0.7">{ LLM }</text>
+            <text x="200" y="100" font-family="monospace" font-size="7" fill="#c44b2b" opacity="0.7">RAG</text>
+            <text x="10" y="270" font-family="monospace" font-size="6" fill="#4a90e2" opacity="0.5">def train():</text>
+          </g>
+
+          <!-- Floating particles -->
+          <g filter="url(#glow)">
+            <circle cx="30" cy="70" r="2.5" fill="#ff6b3d" opacity="0.8"><animate attributeName="cy" values="70;60;70" dur="3s" repeatCount="indefinite"/></circle>
+            <circle cx="250" cy="90" r="2" fill="#5b8fff" opacity="0.8"><animate attributeName="cy" values="90;80;90" dur="4s" repeatCount="indefinite"/></circle>
+            <circle cx="20" cy="180" r="1.8" fill="#3adb8a" opacity="0.7"><animate attributeName="cy" values="180;170;180" dur="5s" repeatCount="indefinite"/></circle>
+            <circle cx="260" cy="200" r="2.2" fill="#f0b93a" opacity="0.8"><animate attributeName="cy" values="200;190;200" dur="3.5s" repeatCount="indefinite"/></circle>
+          </g>
+
+          <!-- Body / shirt -->
+          <ellipse cx="140" cy="290" rx="90" ry="70" fill="url(#shirtGrad)"/>
+
+          <!-- Shirt collar -->
+          <polygon points="118,222 140,260 162,222 155,218 140,240 125,218" fill="url(#collarGrad)" opacity="0.9"/>
+
+          <!-- Neck -->
+          <rect x="124" y="200" width="32" height="28" rx="8" fill="url(#skinGrad)"/>
+          <rect x="127" y="200" width="26" height="14" rx="5" fill="#c8956a"/>
+
+          <!-- Head -->
+          <ellipse cx="140" cy="155" rx="62" ry="70" fill="url(#faceGrad)" filter="url(#softShadow)"/>
+
+          <!-- Ear left -->
+          <ellipse cx="79" cy="158" rx="10" ry="14" fill="#c8956a"/>
+          <ellipse cx="82" cy="158" rx="6" ry="9" fill="#b87848"/>
+
+          <!-- Ear right -->
+          <ellipse cx="201" cy="158" rx="10" ry="14" fill="#c8956a"/>
+          <ellipse cx="198" cy="158" rx="6" ry="9" fill="#b87848"/>
+
+          <!-- Hair -->
+          <ellipse cx="140" cy="98" rx="62" ry="36" fill="#1a1008"/>
+          <path d="M 80 110 Q 78 80 100 70 Q 120 60 140 58 Q 160 56 178 68 Q 198 78 202 110 Q 180 95 140 94 Q 100 93 80 110 Z" fill="#1a1008"/>
+          <!-- Hair shine -->
+          <path d="M 105 75 Q 120 65 145 65 Q 130 70 110 80 Z" fill="#3a2818" opacity="0.6"/>
+
+          <!-- Forehead / face highlight -->
+          <ellipse cx="140" cy="130" rx="36" ry="25" fill="#d4a070" opacity="0.3"/>
+
+          <!-- Eyebrows -->
+          <path d="M 105 128 Q 115 122 128 125" stroke="#2a1a08" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M 152 125 Q 165 122 175 128" stroke="#2a1a08" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+          <!-- Eyes -->
+          <ellipse cx="116" cy="145" rx="14" ry="11" fill="white"/>
+          <ellipse cx="164" cy="145" rx="14" ry="11" fill="white"/>
+
+          <!-- Iris -->
+          <circle cx="116" cy="146" r="9" fill="url(#eyeGrad)"/>
+          <circle cx="164" cy="146" r="9" fill="url(#eyeGrad)"/>
+
+          <!-- Pupil -->
+          <circle cx="117" cy="147" r="5" fill="#0a0d18"/>
+          <circle cx="165" cy="147" r="5" fill="#0a0d18"/>
+
+          <!-- Eye shine -->
+          <circle cx="119" cy="143" r="2.5" fill="white" opacity="0.9"/>
+          <circle cx="167" cy="143" r="2.5" fill="white" opacity="0.9"/>
+          <circle cx="113" cy="149" r="1" fill="white" opacity="0.5"/>
+          <circle cx="161" cy="149" r="1" fill="white" opacity="0.5"/>
+
+          <!-- Eye lids -->
+          <path d="M 102 145 Q 116 136 130 145" stroke="#8a6040" stroke-width="1.5" fill="none"/>
+          <path d="M 150 145 Q 164 136 178 145" stroke="#8a6040" stroke-width="1.5" fill="none"/>
+
+          <!-- Nose -->
+          <path d="M 133 158 Q 128 172 132 178 Q 140 182 148 178 Q 152 172 147 158" stroke="#a06030" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <ellipse cx="136" cy="177" rx="5" ry="4" fill="#b07040" opacity="0.5"/>
+          <ellipse cx="144" cy="177" rx="5" ry="4" fill="#b07040" opacity="0.5"/>
+
+          <!-- Mouth / smile -->
+          <path d="M 122 192 Q 140 205 158 192" stroke="#8a5030" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path d="M 126 192 Q 140 202 154 192" fill="#c06048" opacity="0.4"/>
+
+          <!-- Cheek blush -->
+          <ellipse cx="98" cy="170" rx="14" ry="9" fill="#d4806a" opacity="0.18"/>
+          <ellipse cx="182" cy="170" rx="14" ry="9" fill="#d4806a" opacity="0.18"/>
+
+          <!-- Glasses -->
+          <rect x="97" y="135" width="34" height="22" rx="5" stroke="#1a1612" stroke-width="2.2" fill="none" opacity="0.85"/>
+          <rect x="149" y="135" width="34" height="22" rx="5" stroke="#1a1612" stroke-width="2.2" fill="none" opacity="0.85"/>
+          <line x1="131" y1="144" x2="149" y2="144" stroke="#1a1612" stroke-width="2" opacity="0.85"/>
+          <line x1="83" y1="144" x2="97" y2="144" stroke="#1a1612" stroke-width="1.8" opacity="0.85"/>
+          <line x1="183" y1="144" x2="198" y2="144" stroke="#1a1612" stroke-width="1.8" opacity="0.85"/>
+
+          <!-- Subtle vignette -->
+          <circle cx="140" cy="140" r="140" fill="none" stroke="rgba(0,0,0,0.3)" stroke-width="20"/>
+        </svg>
+      </div>
+      <div class="avatar-badge">
+        <div class="badge-dot"></div>
+        Open to Roles
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-number">60<span style="font-size:1.2rem;color:var(--muted)">%</span></div>
-      <div class="stat-label">Debug Time Reduced</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-number">3<span style="font-size:1.2rem;color:var(--muted)">+</span></div>
-      <div class="stat-label">Production Systems</div>
+
+    <!-- Stat Cards below avatar on desktop -->
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="stat-number">3<span style="font-size:1.2rem;color:var(--muted)">+</span></div>
+        <div class="stat-label">Years Experience</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">60<span style="font-size:1.2rem;color:var(--muted)">%</span></div>
+        <div class="stat-label">Debug Time Reduced</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">3<span style="font-size:1.2rem;color:var(--muted)">+</span></div>
+        <div class="stat-label">Production Systems</div>
+      </div>
     </div>
   </div>
 </section>
@@ -441,26 +687,11 @@
       </div>
     </div>
     <div class="contact-block reveal">
-      <a href="mailto:ashishvarshney6329@gmail.com" class="contact-item">
-        <span class="contact-icon">✉</span>
-        ashishvarshney6329@gmail.com
-      </a>
-      <a href="tel:+918439683332" class="contact-item">
-        <span class="contact-icon">☎</span>
-        +91-8439683332
-      </a>
-      <a href="https://github.com/ashish6329" target="_blank" class="contact-item">
-        <span class="contact-icon">⌥</span>
-        github / ashish6329
-      </a>
-      <a href="https://linkedin.com/in/ashishvarshneybuilds" target="_blank" class="contact-item">
-        <span class="contact-icon">◈</span>
-        linkedin / ashishvarshneybuilds
-      </a>
-      <a href="https://ashishvarshney.ai" target="_blank" class="contact-item">
-        <span class="contact-icon">◉</span>
-        ashishvarshney.ai
-      </a>
+      <a href="mailto:ashishvarshney6329@gmail.com" class="contact-item"><span class="contact-icon">✉</span>ashishvarshney6329@gmail.com</a>
+      <a href="tel:+918439683332" class="contact-item"><span class="contact-icon">☎</span>+91-8439683332</a>
+      <a href="https://github.com/ashish6329" target="_blank" class="contact-item"><span class="contact-icon">⌥</span>github / ashish6329</a>
+      <a href="https://linkedin.com/in/ashishvarshneybuilds" target="_blank" class="contact-item"><span class="contact-icon">◈</span>linkedin / ashishvarshneybuilds</a>
+      <a href="https://ashishvarshney.ai" target="_blank" class="contact-item"><span class="contact-icon">◉</span>ashishvarshney.ai</a>
     </div>
   </div>
 </section>
@@ -472,7 +703,6 @@
     <h2 class="section-title">Experience</h2>
     <div class="section-line"></div>
   </div>
-
   <div class="exp-item reveal">
     <div class="exp-meta">
       <div class="exp-period">Sep 2024 – Jan 2026</div>
@@ -489,7 +719,6 @@
       </ul>
     </div>
   </div>
-
   <div class="exp-item reveal">
     <div class="exp-meta">
       <div class="exp-period">Jul 2023 – Aug 2024</div>
@@ -502,7 +731,7 @@
         <li>Designed ML-based anomaly detection and failure prediction systems using ARIMA, Isolation Forest, and XGBoost for multivariate telemetry streams from VM servers and data-center infrastructure. <span class="exp-impact">↓40-60% MTTD</span></li>
         <li>Led end-to-end migration of high-throughput telemetry pipelines from GCP Pub/Sub Lite to Kafka and Apache NiFi, improving ingestion scalability for thousands of nodes.</li>
         <li>Built low-latency Flask APIs to collect telemetry from OpenNMS collectors across VM servers and data-center nodes, enabling real-time KPI computation and proactive incident detection.</li>
-        <li>Delivered rapid cloud-to-on-prem migration of a production data ingestion platform (GCP Pub/Sub → Kafka &amp; Apache NiFi) using AI-assisted GitHub Copilot prompts, significantly reducing cloud costs and enabling full production deployment within days.</li>
+        <li>Delivered rapid cloud-to-on-prem migration of a production data ingestion platform using AI-assisted GitHub Copilot prompts, significantly reducing cloud costs and enabling full production deployment within days.</li>
         <li>Boosted engineering productivity by implementing AI-generated API unit testing workflows, reducing manual testing effort, accelerating release cycles, and minimizing production defects.</li>
       </ul>
     </div>
@@ -520,252 +749,137 @@
     <div class="skill-category reveal">
       <div class="skill-cat-title genai-title">⚡ Generative AI</div>
       <div class="skill-tags">
-        <span class="skill-tag">LLMs (GPT-4o, Claude, Gemini)</span>
-        <span class="skill-tag">RAG</span>
-        <span class="skill-tag">Prompt Engineering</span>
-        <span class="skill-tag">LangChain</span>
-        <span class="skill-tag">LangGraph</span>
-        <span class="skill-tag">Langsmith</span>
-        <span class="skill-tag">LlamaIndex</span>
-        <span class="skill-tag">AI Agents</span>
-        <span class="skill-tag">Vector DBs</span>
-        <span class="skill-tag">FAISS / Chroma</span>
-        <span class="skill-tag">HuggingFace</span>
-        <span class="skill-tag">Fine-tuning (LoRA/QLoRA)</span>
-        <span class="skill-tag">Embeddings</span>
-        <span class="skill-tag">Prompt Chaining</span>
+        <span class="skill-tag">LLMs (GPT-4o, Claude, Gemini)</span><span class="skill-tag">RAG</span><span class="skill-tag">Prompt Engineering</span><span class="skill-tag">LangChain</span><span class="skill-tag">LangGraph</span><span class="skill-tag">Langsmith</span><span class="skill-tag">LlamaIndex</span><span class="skill-tag">AI Agents</span><span class="skill-tag">Vector DBs</span><span class="skill-tag">FAISS / Chroma</span><span class="skill-tag">HuggingFace</span><span class="skill-tag">Fine-tuning (LoRA/QLoRA)</span><span class="skill-tag">Embeddings</span><span class="skill-tag">Prompt Chaining</span>
       </div>
     </div>
     <div class="skill-category reveal">
       <div class="skill-cat-title">Languages</div>
       <div class="skill-tags">
-        <span class="skill-tag">Python</span>
-        <span class="skill-tag">C++</span>
-        <span class="skill-tag">C</span>
-        <span class="skill-tag">SQL</span>
-        <span class="skill-tag">Bash / Shell</span>
+        <span class="skill-tag">Python</span><span class="skill-tag">C++</span><span class="skill-tag">C</span><span class="skill-tag">SQL</span><span class="skill-tag">Bash / Shell</span>
       </div>
     </div>
     <div class="skill-category reveal">
       <div class="skill-cat-title">ML &amp; AI</div>
       <div class="skill-tags">
-        <span class="skill-tag">Anomaly Detection</span>
-        <span class="skill-tag">XGBoost</span>
-        <span class="skill-tag">Random Forest</span>
-        <span class="skill-tag">ARIMA</span>
-        <span class="skill-tag">Isolation Forest</span>
-        <span class="skill-tag">Feature Engineering</span>
-        <span class="skill-tag">Scikit-learn</span>
-        <span class="skill-tag">NLP / Text ML</span>
-        <span class="skill-tag">Time-Series Forecasting</span>
+        <span class="skill-tag">Anomaly Detection</span><span class="skill-tag">XGBoost</span><span class="skill-tag">Random Forest</span><span class="skill-tag">ARIMA</span><span class="skill-tag">Isolation Forest</span><span class="skill-tag">Feature Engineering</span><span class="skill-tag">Scikit-learn</span><span class="skill-tag">NLP / Text ML</span><span class="skill-tag">Time-Series Forecasting</span>
       </div>
     </div>
     <div class="skill-category reveal">
       <div class="skill-cat-title">Deep Learning</div>
       <div class="skill-tags">
-        <span class="skill-tag">Transformers</span>
-        <span class="skill-tag">CNNs</span>
-        <span class="skill-tag">RNNs / LSTMs</span>
-        <span class="skill-tag">Attention Mechanisms</span>
-        <span class="skill-tag">TensorFlow</span>
-        <span class="skill-tag">PyTorch</span>
-        <span class="skill-tag">Keras</span>
-        <span class="skill-tag">Transfer Learning</span>
-        <span class="skill-tag">Grad-CAM</span>
-        <span class="skill-tag">EfficientNet / ResNet</span>
+        <span class="skill-tag">Transformers</span><span class="skill-tag">CNNs</span><span class="skill-tag">RNNs / LSTMs</span><span class="skill-tag">Attention Mechanisms</span><span class="skill-tag">TensorFlow</span><span class="skill-tag">PyTorch</span><span class="skill-tag">Keras</span><span class="skill-tag">Transfer Learning</span><span class="skill-tag">Grad-CAM</span><span class="skill-tag">EfficientNet / ResNet</span>
       </div>
     </div>
     <div class="skill-category reveal">
       <div class="skill-cat-title dsa-title">◆ DSA &amp; Problem Solving</div>
       <div class="skill-tags">
-        <span class="skill-tag">Dynamic Programming</span>
-        <span class="skill-tag">Graph Algorithms</span>
-        <span class="skill-tag">Trees &amp; Heaps</span>
-        <span class="skill-tag">Sorting &amp; Searching</span>
-        <span class="skill-tag">Sliding Window</span>
-        <span class="skill-tag">Recursion &amp; Backtracking</span>
-        <span class="skill-tag">Hashing</span>
-        <span class="skill-tag">Greedy Algorithms</span>
-        <span class="skill-tag">Problem solving★</span>
+        <span class="skill-tag">Dynamic Programming</span><span class="skill-tag">Graph Algorithms</span><span class="skill-tag">Trees &amp; Heaps</span><span class="skill-tag">Sorting &amp; Searching</span><span class="skill-tag">Sliding Window</span><span class="skill-tag">Recursion &amp; Backtracking</span><span class="skill-tag">Hashing</span><span class="skill-tag">Greedy Algorithms</span>
       </div>
     </div>
     <div class="skill-category reveal">
       <div class="skill-cat-title">MLOps &amp; Deployment</div>
       <div class="skill-tags">
-        <span class="skill-tag">MLflow</span>
-        <span class="skill-tag">BentoML</span>
-        <span class="skill-tag">Model Serving</span>
-        <span class="skill-tag">Model Monitoring</span>
-        <span class="skill-tag">Jenkins</span>
-        <span class="skill-tag">n8n</span>
-        <span class="skill-tag">Docker</span>
-        <span class="skill-tag">CI/CD Pipelines</span>
+        <span class="skill-tag">MLflow</span><span class="skill-tag">BentoML</span><span class="skill-tag">Model Serving</span><span class="skill-tag">Model Monitoring</span><span class="skill-tag">Jenkins</span><span class="skill-tag">n8n</span><span class="skill-tag">Docker</span><span class="skill-tag">CI/CD Pipelines</span>
       </div>
     </div>
     <div class="skill-category reveal">
       <div class="skill-cat-title">Backend &amp; Systems</div>
       <div class="skill-tags">
-        <span class="skill-tag">Flask</span>
-        <span class="skill-tag">FastAPI</span>
-        <span class="skill-tag">REST APIs</span>
-        <span class="skill-tag">FAISS</span>
-        <span class="skill-tag">Kafka</span>
-        <span class="skill-tag">Apache NiFi</span>
-        <span class="skill-tag">GCP Pub/Sub</span>
-        <span class="skill-tag">MySQL</span>
-        <span class="skill-tag">Redis</span>
+        <span class="skill-tag">Flask</span><span class="skill-tag">FastAPI</span><span class="skill-tag">REST APIs</span><span class="skill-tag">FAISS</span><span class="skill-tag">Kafka</span><span class="skill-tag">Apache NiFi</span><span class="skill-tag">GCP Pub/Sub</span><span class="skill-tag">MySQL</span><span class="skill-tag">Redis</span>
       </div>
     </div>
     <div class="skill-category reveal">
       <div class="skill-cat-title">Data Science</div>
       <div class="skill-tags">
-        <span class="skill-tag">Pandas</span>
-        <span class="skill-tag">NumPy</span>
-        <span class="skill-tag">Matplotlib</span>
-        <span class="skill-tag">Seaborn</span>
-        <span class="skill-tag">EDA</span>
-        <span class="skill-tag">Statistical Modeling</span>
+        <span class="skill-tag">Pandas</span><span class="skill-tag">NumPy</span><span class="skill-tag">Matplotlib</span><span class="skill-tag">Seaborn</span><span class="skill-tag">EDA</span><span class="skill-tag">Statistical Modeling</span>
       </div>
     </div>
   </div>
 </section>
 
-<!-- END-TO-END ARCHITECTURE -->
+<!-- ARCHITECTURE -->
 <section id="architecture">
   <div class="section-header reveal">
     <span class="section-number">04 /</span>
     <h2 class="section-title">End-to-End Architecture</h2>
     <div class="section-line"></div>
   </div>
-  <p class="arch-intro reveal">
-    From raw data ingestion to production inference — I design and own the <strong>full ML system lifecycle</strong>. Below are the key architectural patterns and pipelines I've built and shipped at enterprise scale.
-  </p>
-
+  <p class="arch-intro reveal">From raw data ingestion to production inference — I design and own the <strong>full ML system lifecycle</strong>. Below are the key architectural patterns and pipelines I've built and shipped at enterprise scale.</p>
   <div class="pipeline-strip reveal">
     <div class="pipeline-strip-title">⚡ LLM-Powered RAG Architecture — Log Intelligence &amp; Root Cause Analysis</div>
     <div class="pipeline-flow">
-      <div class="pipeline-step"><span class="pipeline-step-icon">📥</span><span class="pipeline-step-name">Raw Logs</span></div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-step"><span class="pipeline-step-icon">🔧</span><span class="pipeline-step-name">NLP Normalize</span></div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-step"><span class="pipeline-step-icon">🧮</span><span class="pipeline-step-name">Embeddings</span></div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-step"><span class="pipeline-step-icon">🗂️</span><span class="pipeline-step-name">FAISS Index</span></div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-step"><span class="pipeline-step-icon">🔍</span><span class="pipeline-step-name">Semantic Search</span></div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-step"><span class="pipeline-step-icon">🤖</span><span class="pipeline-step-name">LLM + Prompt Chain</span></div>
-      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-step"><span class="pipeline-step-icon">📥</span><span class="pipeline-step-name">Raw Logs</span></div><div class="pipeline-arrow">→</div>
+      <div class="pipeline-step"><span class="pipeline-step-icon">🔧</span><span class="pipeline-step-name">NLP Normalize</span></div><div class="pipeline-arrow">→</div>
+      <div class="pipeline-step"><span class="pipeline-step-icon">🧮</span><span class="pipeline-step-name">Embeddings</span></div><div class="pipeline-arrow">→</div>
+      <div class="pipeline-step"><span class="pipeline-step-icon">🗂️</span><span class="pipeline-step-name">FAISS Index</span></div><div class="pipeline-arrow">→</div>
+      <div class="pipeline-step"><span class="pipeline-step-icon">🔍</span><span class="pipeline-step-name">Semantic Search</span></div><div class="pipeline-arrow">→</div>
+      <div class="pipeline-step"><span class="pipeline-step-icon">🤖</span><span class="pipeline-step-name">LLM + Prompt Chain</span></div><div class="pipeline-arrow">→</div>
       <div class="pipeline-step"><span class="pipeline-step-icon">📊</span><span class="pipeline-step-name">RCA Output</span></div>
     </div>
   </div>
-
   <div class="pipeline-strip reveal">
     <div class="pipeline-strip-title">🔬 ML Anomaly Detection Pipeline — Telcom Observability Platform</div>
     <div class="pipeline-flow">
-      <div class="pipeline-step"><span class="pipeline-step-icon">📡</span><span class="pipeline-step-name">Telemetry Stream</span></div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-step"><span class="pipeline-step-icon">⚙️</span><span class="pipeline-step-name">Kafka / NiFi</span></div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-step"><span class="pipeline-step-icon">🧹</span><span class="pipeline-step-name">Feature Eng.</span></div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-step"><span class="pipeline-step-icon">🌲</span><span class="pipeline-step-name">Isolation Forest</span></div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-step"><span class="pipeline-step-icon">📈</span><span class="pipeline-step-name">ARIMA / XGBoost</span></div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-step"><span class="pipeline-step-icon">🚨</span><span class="pipeline-step-name">Alert Engine</span></div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-step"><span class="pipeline-step-icon">🎛️</span><span class="pipeline-step-name">Flask API / Dashboard</span></div>
+      <div class="pipeline-step"><span class="pipeline-step-icon">📡</span><span class="pipeline-step-name">Telemetry Stream</span></div><div class="pipeline-arrow">→</div>
+      <div class="pipeline-step"><span class="pipeline-step-icon">⚙️</span><span class="pipeline-step-name">Kafka / NiFi</span></div><div class="pipeline-arrow">→</div>
+      <div class="pipeline-step"><span class="pipeline-step-icon">🧹</span><span class="pipeline-step-name">Feature Eng.</span></div><div class="pipeline-arrow">→</div>
+      <div class="pipeline-step"><span class="pipeline-step-icon">🌲</span><span class="pipeline-step-name">Isolation Forest</span></div><div class="pipeline-arrow">→</div>
+      <div class="pipeline-step"><span class="pipeline-step-icon">📈</span><span class="pipeline-step-name">ARIMA / XGBoost</span></div><div class="pipeline-arrow">→</div>
+      <div class="pipeline-step"><span class="pipeline-step-icon">🚨</span><span class="pipeline-step-name">Alert Engine</span></div><div class="pipeline-arrow">→</div>
+      <div class="pipeline-step"><span class="pipeline-step-icon">🎛️</span><span class="pipeline-step-name">Flask API</span></div>
     </div>
   </div>
-
   <div class="arch-grid">
     <div class="arch-card reveal">
       <span class="arch-icon">🧠</span>
       <div class="arch-card-label">GenAI System · Production</div>
       <div class="arch-card-title">RAG-Based Intelligent Log Analysis</div>
       <p class="arch-card-desc">Production LLM pipeline combining FAISS vector search, OpenAI/HuggingFace embeddings, and prompt-chaining for automated root cause analysis on enterprise log data. Reduced mean debug time by 60% and eliminated alert fatigue across teams.</p>
-      <div class="arch-stack">
-        <span class="arch-stack-tag">LangChain</span>
-        <span class="arch-stack-tag">FAISS</span>
-        <span class="arch-stack-tag">OpenAI API</span>
-        <span class="arch-stack-tag">HuggingFace</span>
-        <span class="arch-stack-tag">Flask</span>
-        <span class="arch-stack-tag">Python</span>
-      </div>
+      <div class="arch-stack"><span class="arch-stack-tag">LangChain</span><span class="arch-stack-tag">FAISS</span><span class="arch-stack-tag">OpenAI API</span><span class="arch-stack-tag">HuggingFace</span><span class="arch-stack-tag">Flask</span><span class="arch-stack-tag">Python</span></div>
     </div>
     <div class="arch-card reveal">
       <span class="arch-icon">🔭</span>
       <div class="arch-card-label">MLOps · End-to-End</div>
       <div class="arch-card-title">Full ML Lifecycle — Telcom Observability</div>
-      <p class="arch-card-desc">Complete ML system from data ingestion (Kafka, NiFi) → feature engineering → model training (ARIMA, Isolation Forest, XGBoost) → MLflow experiment tracking → BentoML serving → Flask API → monitoring dashboards. Live on thousands of infrastructure nodes.</p>
-      <div class="arch-stack">
-        <span class="arch-stack-tag">Kafka</span>
-        <span class="arch-stack-tag">Apache NiFi</span>
-        <span class="arch-stack-tag">MLflow</span>
-        <span class="arch-stack-tag">BentoML</span>
-        <span class="arch-stack-tag">XGBoost</span>
-        <span class="arch-stack-tag">Flask</span>
-      </div>
+      <p class="arch-card-desc">Complete ML system from data ingestion (Kafka, NiFi) → feature engineering → model training → MLflow tracking → BentoML serving → Flask API → monitoring dashboards. Live on thousands of infrastructure nodes.</p>
+      <div class="arch-stack"><span class="arch-stack-tag">Kafka</span><span class="arch-stack-tag">Apache NiFi</span><span class="arch-stack-tag">MLflow</span><span class="arch-stack-tag">BentoML</span><span class="arch-stack-tag">XGBoost</span><span class="arch-stack-tag">Flask</span></div>
     </div>
     <div class="arch-card reveal">
       <span class="arch-icon">🏗️</span>
       <div class="arch-card-label">Deep Learning · Computer Vision</div>
       <div class="arch-card-title">Explainable CNN Pipeline for Medical Imaging</div>
-      <p class="arch-card-desc">End-to-end X-ray analysis system: data preprocessing → EfficientNet/ResNet with custom CNN layers → Grad-CAM visualization for clinical interpretability → production inference API. Designed for batch inference, compliance readiness, and continuous model evaluation.</p>
-      <div class="arch-stack">
-        <span class="arch-stack-tag">PyTorch</span>
-        <span class="arch-stack-tag">EfficientNet</span>
-        <span class="arch-stack-tag">Grad-CAM</span>
-        <span class="arch-stack-tag">OpenCV</span>
-        <span class="arch-stack-tag">FastAPI</span>
-        <span class="arch-stack-tag">Docker</span>
-      </div>
+      <p class="arch-card-desc">End-to-end X-ray analysis system: data preprocessing → EfficientNet/ResNet with custom CNN layers → Grad-CAM visualization for clinical interpretability → production inference API.</p>
+      <div class="arch-stack"><span class="arch-stack-tag">PyTorch</span><span class="arch-stack-tag">EfficientNet</span><span class="arch-stack-tag">Grad-CAM</span><span class="arch-stack-tag">OpenCV</span><span class="arch-stack-tag">FastAPI</span><span class="arch-stack-tag">Docker</span></div>
     </div>
     <div class="arch-card reveal">
       <span class="arch-icon">⚙️</span>
       <div class="arch-card-label">CI/CD · Automation · GenAI-Augmented</div>
       <div class="arch-card-title">AI-Augmented DevOps &amp; Release Automation</div>
       <p class="arch-card-desc">Automated CI/CD architecture using Jenkins + n8n + Python covering: environment provisioning, cross-OS test execution, AI-generated unit test suites via GitHub Copilot, versioning, artifact publishing, and deployment gates. Cut release cycles by 40–50%.</p>
-      <div class="arch-stack">
-        <span class="arch-stack-tag">Jenkins</span>
-        <span class="arch-stack-tag">n8n</span>
-        <span class="arch-stack-tag">GitHub Copilot</span>
-        <span class="arch-stack-tag">Python</span>
-        <span class="arch-stack-tag">Docker</span>
-        <span class="arch-stack-tag">Shell</span>
-      </div>
+      <div class="arch-stack"><span class="arch-stack-tag">Jenkins</span><span class="arch-stack-tag">n8n</span><span class="arch-stack-tag">GitHub Copilot</span><span class="arch-stack-tag">Python</span><span class="arch-stack-tag">Docker</span><span class="arch-stack-tag">Shell</span></div>
     </div>
   </div>
 </section>
 
-<!-- WRITING / SUBSTACK -->
+<!-- WRITING -->
 <section id="writing">
   <div class="section-header reveal">
     <span class="section-number">05 /</span>
     <h2 class="section-title">Writing</h2>
     <div class="section-line"></div>
   </div>
-  <p class="writing-intro reveal">
-    I write about AI, machine learning systems, and the craft of building production-grade software. Published on Substack — thoughts on GenAI, MLOps, and the future of intelligent systems.
-  </p>
+  <p class="writing-intro reveal">I write about AI, machine learning systems, and the craft of building production-grade software. Published on Substack — thoughts on GenAI, MLOps, and the future of intelligent systems.</p>
   <div class="writing-grid">
-    <a class="writing-card reveal" href="https://substack.com/@ashishvarshney/note/p-199043053?utm_source=notes-share-action&r=6x0sm9" target="_blank" rel="noopener noreferrer">
+    <a class="writing-card reveal" href="https://substack.com/@ashishvarshney/note/p-199043053" target="_blank" rel="noopener noreferrer">
       <span class="writing-card-icon">✍</span>
-      <div class="writing-card-meta">
-        <span class="writing-platform">Substack</span>
-        <span class="writing-type">Note · AI Systems</span>
-      </div>
+      <div class="writing-card-meta"><span class="writing-platform">Substack</span><span class="writing-type">Note · AI Systems</span></div>
       <div class="writing-title">Building Smarter AI — Note #1</div>
       <p class="writing-excerpt">Thoughts on designing intelligent systems that go beyond the hype — practical insights into LLM pipelines, RAG architectures, and what it actually takes to ship GenAI in production.</p>
       <span class="writing-link">Read on Substack →</span>
     </a>
-    <a class="writing-card reveal" href="https://substack.com/@ashishvarshney/note/p-198764334?utm_source=notes-share-action&r=6x0sm9" target="_blank" rel="noopener noreferrer">
+    <a class="writing-card reveal" href="https://substack.com/@ashishvarshney/note/p-198764334" target="_blank" rel="noopener noreferrer">
       <span class="writing-card-icon">✍</span>
-      <div class="writing-card-meta">
-        <span class="writing-platform">Substack</span>
-        <span class="writing-type">Note · MLOps</span>
-      </div>
+      <div class="writing-card-meta"><span class="writing-platform">Substack</span><span class="writing-type">Note · MLOps</span></div>
       <div class="writing-title">Building Smarter AI — Note #2</div>
       <p class="writing-excerpt">Exploring the full ML lifecycle: from telemetry ingestion and anomaly detection to production deployment. Real lessons from building observability platforms at enterprise scale.</p>
       <span class="writing-link">Read on Substack →</span>
@@ -794,7 +908,7 @@
     <div class="project-card reveal">
       <div class="project-label">HCLSoftware · Cloud Migration</div>
       <div class="project-title">Cloud-to-On-Prem Data Ingestion Migration</div>
-      <p class="project-desc">Rapid migration of a production data ingestion platform from GCP Pub/Sub to Kafka &amp; Apache NiFi using AI-assisted GitHub Copilot prompts. Significantly reduced cloud infrastructure costs and achieved full production deployment within days — far ahead of schedule.</p>
+      <p class="project-desc">Rapid migration of a production data ingestion platform from GCP Pub/Sub to Kafka &amp; Apache NiFi using AI-assisted GitHub Copilot prompts. Significantly reduced cloud infrastructure costs and achieved full production deployment within days.</p>
     </div>
     <div class="project-card reveal">
       <div class="project-label">HCLSoftware · GenAI · QA Automation</div>
@@ -826,26 +940,22 @@
 <!-- ACHIEVEMENTS -->
 <section id="achievements">
   <div class="section-header reveal">
+    <span class="section-number">08 /</span>
+    <h2 class="section-title">Achievements</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="ach-list">
     <div class="ach-item reveal">
       <div class="ach-icon">🏆</div>
-      <div class="ach-text">
-        <strong>Swachh Bharat Internship — 2nd Prize</strong>
-        National digital awareness campaign — MHRD. Awarded for blogs, presentations, videos, and online content.
-      </div>
+      <div class="ach-text"><strong>Swachh Bharat Internship — 2nd Prize</strong>National digital awareness campaign — MHRD. Awarded for blogs, presentations, videos, and online content.</div>
     </div>
     <div class="ach-item reveal">
       <div class="ach-icon">🎓</div>
-      <div class="ach-text">
-        <strong>IIT Roorkee — M.Tech AI</strong>
-        Secured admission into the prestigious AI program at IIT Roorkee through competitive entrance examination.
-      </div>
+      <div class="ach-text"><strong>IIT Roorkee — M.Tech AI</strong>Secured admission into the prestigious AI program at IIT Roorkee through competitive entrance examination.</div>
     </div>
     <div class="ach-item reveal">
       <div class="ach-icon">⚡</div>
-      <div class="ach-text">
-        <strong>Production Impact — 60% Debug Time Reduction</strong>
-        Delivered measurable enterprise-scale impact through GenAI-powered RCA engine shipped in production at HCLSoftware.
-      </div>
+      <div class="ach-text"><strong>Production Impact — 60% Debug Time Reduction</strong>Delivered measurable enterprise-scale impact through GenAI-powered RCA engine shipped in production at HCLSoftware.</div>
     </div>
   </div>
 </section>
@@ -859,30 +969,13 @@
   </div>
   <div class="contact-section-grid">
     <div class="reveal">
-      <p class="contact-intro">
-        Open to exciting new opportunities in ML Engineering, GenAI Systems, and Backend roles. Whether you have a project in mind, want to collaborate, or just want to talk AI — I'm all ears. Let's build something incredible together.
-      </p>
+      <p class="contact-intro">Open to exciting new opportunities in ML Engineering, GenAI Systems, and Backend roles. Whether you have a project in mind, want to collaborate, or just want to talk AI — I'm all ears. Let's build something incredible together.</p>
       <div class="contact-direct-links">
-        <a href="mailto:ashishvarshney.ai@outlook.com" class="contact-item">
-          <span class="contact-icon">✉</span>
-          ashishvarshney.ai@outlook.com
-        </a>
-        <a href="https://linkedin.com/in/ashishvarshneybuilds" target="_blank" class="contact-item">
-          <span class="contact-icon">◈</span>
-          LinkedIn — ashishvarshneybuilds
-        </a>
-        <a href="https://github.com/ashish6329" target="_blank" class="contact-item">
-          <span class="contact-icon">⌥</span>
-          GitHub — ashish6329
-        </a>
-        <a href="https://ashishvarshney.ai" target="_blank" class="contact-item">
-          <span class="contact-icon">◉</span>
-          ashishvarshney.ai
-        </a>
-        <a href="https://substack.com/@ashishvarshney" target="_blank" class="contact-item">
-          <span class="contact-icon">✍</span>
-          Substack — ashishvarshney
-        </a>
+        <a href="mailto:ashishvarshney.ai@outlook.com" class="contact-item"><span class="contact-icon">✉</span>ashishvarshney.ai@outlook.com</a>
+        <a href="https://linkedin.com/in/ashishvarshneybuilds" target="_blank" class="contact-item"><span class="contact-icon">◈</span>LinkedIn — ashishvarshneybuilds</a>
+        <a href="https://github.com/ashish6329" target="_blank" class="contact-item"><span class="contact-icon">⌥</span>GitHub — ashish6329</a>
+        <a href="https://ashishvarshney.ai" target="_blank" class="contact-item"><span class="contact-icon">◉</span>ashishvarshney.ai</a>
+        <a href="https://substack.com/@ashishvarshney" target="_blank" class="contact-item"><span class="contact-icon">✍</span>Substack — ashishvarshney</a>
       </div>
     </div>
     <div class="contact-form-wrapper reveal">
@@ -932,6 +1025,18 @@
 </footer>
 
 <script>
+  // ── THEME TOGGLE ──
+  const toggle = document.getElementById('themeToggle');
+  const root = document.documentElement;
+  let dark = false;
+  toggle.addEventListener('click', () => {
+    dark = !dark;
+    root.setAttribute('data-theme', dark ? 'dark' : 'light');
+    toggle.textContent = dark ? '☀' : '☽';
+    toggle.style.transform = 'scale(1.2) rotate(360deg)';
+    setTimeout(() => toggle.style.transform = '', 400);
+  });
+
   // ── SCROLL PROGRESS ──
   const progressBar = document.getElementById('scrollProgress');
   window.addEventListener('scroll', () => {
@@ -939,7 +1044,7 @@
     progressBar.style.width = pct + '%';
   });
 
-  // ── NAV COMPACT ON SCROLL ──
+  // ── NAV COMPACT ──
   const nav = document.getElementById('mainNav');
   window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 60));
 
