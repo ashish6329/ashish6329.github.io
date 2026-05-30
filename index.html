@@ -972,7 +972,7 @@
     setTimeout(() => {
       const fullName = lname ? `${fname} ${lname}` : fname;
       const body = `From: ${fullName}\nEmail: ${email}\n\n${message}`;
-      window.location.href = `mailto:ashishvarshney6329@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.location.href = `mailto:ashishvarshney.ai@outlook.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       ['fname','lname','email','subject','message'].forEach(id => document.getElementById(id).value = '');
       btn.disabled = false;
       document.getElementById('submitLabel').textContent = 'Send Message';
